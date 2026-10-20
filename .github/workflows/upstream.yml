@@ -1,0 +1,25 @@
+name: Upstream
+
+# Daily: builds the app against ShopArchive's main instead of shoparchive.ref, so a change there that iOS cannot compile (a JVM call in common
+# code, an expect without an iOS actual, a string the app needs removed) shows up the next day, not when shoparchive.ref moves for a release.
+# Uploads nothing: fetch-clientcore.sh takes its framework from CI runs only.
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/clientcore
+        with:
+          ref: main
+      - run: ./gradlew -Pshoparchive=upstream :clientcore:iosSimulatorArm64Test
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      - run: xcodebuild -project ShopArchive.xcodeproj -scheme ShopArchive -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -configuration Debug -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
