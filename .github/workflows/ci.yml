@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/clientcore
-      - run: ./gradlew -Pshoparchive=shoparchive :clientcore:iosSimulatorArm64Test
+      - run: ./gradlew -Pshoparchive=upstream :clientcore:iosSimulatorArm64Test
       # Kotlin/Native links Apple binaries only on macOS: on Linux, fetch-clientcore.sh downloads this and xtool builds the app with it.
       - uses: actions/upload-artifact@v7
         with:

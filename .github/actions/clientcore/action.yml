@@ -11,7 +11,8 @@ runs:
       with:
         repository: FelisiaCH/ShopArchive
         ref: ${{ steps.ref.outputs.ref }}
-        path: shoparchive
+        # Not shoparchive/: on macOS that is the folder of the app's sources, ShopArchive/.
+        path: upstream
     - uses: actions/setup-java@v6
       with:
         distribution: temurin
@@ -19,7 +20,7 @@ runs:
     - uses: gradle/actions/setup-gradle@v6
     # Kotlin/Native links Apple binaries only on macOS: this is the one place ClientCore is built; Xcode and, through fetch-clientcore.sh, xtool use the result.
     - run: |
-        ./gradlew -Pshoparchive=shoparchive checkIosResources :clientcore:assembleClientCoreReleaseXCFramework
+        ./gradlew -Pshoparchive=upstream checkIosResources :clientcore:assembleClientCoreReleaseXCFramework
         mkdir -p Frameworks
         rm -rf Frameworks/ClientCore.xcframework
         cp -R clientcore/build/XCFrameworks/release/ClientCore.xcframework Frameworks/

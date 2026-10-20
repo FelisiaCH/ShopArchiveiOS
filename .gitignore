@@ -30,4 +30,4 @@ Frameworks/
 Assets/
 
 # CI checks ShopArchive out here (shoparchive.ref)
-shoparchive/
+upstream/
