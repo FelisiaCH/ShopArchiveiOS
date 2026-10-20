@@ -1,6 +1,6 @@
 #!/bin/sh
 # Downloads the ClientCore XCFramework and the compiled asset catalog (the app icon) that CI built for this commit into Frameworks/ and Assets/, for xtool on Linux:
-# Kotlin/Native links Apple binaries only on macOS. Push the commit and wait for CI first.
+# Kotlin/Native links Apple binaries only on macOS (CI builds ClientCore from ShopArchive at shoparchive.ref). Push the commit and wait for CI first.
 set -eu
 cd "$(dirname "$0")"
 commit=$(git rev-parse HEAD)

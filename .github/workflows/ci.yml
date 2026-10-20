@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # The client core and the app build only on macOS: the core's tests on the simulator, then the XCFramework, then the app itself.
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/clientcore
+      - run: ./gradlew -Pshoparchive=shoparchive :clientcore:iosSimulatorArm64Test
+      # Kotlin/Native links Apple binaries only on macOS: on Linux, fetch-clientcore.sh downloads this and xtool builds the app with it.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ClientCore-xcframework
+          path: clientcore/build/XCFrameworks/release/
+          if-no-files-found: error
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      # Unsigned simulator build, linking Frameworks/ClientCore.xcframework.
+      - run: xcodebuild -project ShopArchive.xcodeproj -scheme ShopArchive -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -configuration Debug -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
+      # The version numbers and the Bonjour service come from the generated AppInfo.plist: show that Xcode kept them.
+      - run: |
+          plist=build/DerivedData/Build/Products/Debug-iphonesimulator/ShopArchive.app/Info.plist
+          for key in CFBundleShortVersionString CFBundleVersion NSBonjourServices; do /usr/libexec/PlistBuddy -c "Print :$key" "$plist"; done
+      # xtool on Linux cannot compile the asset catalog (the app icon): compile it here, and fetch-clientcore.sh downloads Assets.car.
+      - run: |
+          mkdir -p build/assets
+          xcrun actool ShopArchive/Assets.xcassets --compile build/assets --platform iphoneos --minimum-deployment-target 16.0 --app-icon AppIcon --target-device iphone --output-partial-info-plist build/assets/partial.plist
+          cat build/assets/partial.plist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ios-assets
+          path: build/assets/Assets.car
+          if-no-files-found: error

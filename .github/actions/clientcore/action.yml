@@ -1,0 +1,26 @@
+name: ClientCore
+description: Checks out ShopArchive at shoparchive.ref and builds the ClientCore XCFramework from it into Frameworks/, after checking that the generated resources are current.
+
+runs:
+  using: composite
+  steps:
+    - id: ref
+      run: echo "ref=$(tr -d '[:space:]' < shoparchive.ref)" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - uses: actions/checkout@v7
+      with:
+        repository: FelisiaCH/ShopArchive
+        ref: ${{ steps.ref.outputs.ref }}
+        path: shoparchive
+    - uses: actions/setup-java@v6
+      with:
+        distribution: temurin
+        java-version: 21
+    - uses: gradle/actions/setup-gradle@v6
+    # Kotlin/Native links Apple binaries only on macOS: this is the one place ClientCore is built; Xcode and, through fetch-clientcore.sh, xtool use the result.
+    - run: |
+        ./gradlew -Pshoparchive=shoparchive checkIosResources :clientcore:assembleClientCoreReleaseXCFramework
+        mkdir -p Frameworks
+        rm -rf Frameworks/ClientCore.xcframework
+        cp -R clientcore/build/XCFrameworks/release/ClientCore.xcframework Frameworks/
+      shell: bash

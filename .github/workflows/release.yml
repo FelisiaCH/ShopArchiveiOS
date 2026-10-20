@@ -1,0 +1,31 @@
+name: Release
+
+# A tag v* builds the unsigned ShopArchive.ipa and the AltStore source for it, and keeps both in a DRAFT GitHub release:
+# install it from the draft, test it, then publish the release yourself. AltStore re-signs the app on the phone.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  ipa:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/clientcore
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      - run: xcodebuild archive -project ShopArchive.xcodeproj -scheme ShopArchive -sdk iphoneos -destination 'generic/platform=iOS' -configuration Release -archivePath build/ShopArchive.xcarchive CODE_SIGNING_ALLOWED=NO
+      - run: |
+          mkdir build/ipa
+          cp -R build/ShopArchive.xcarchive/Products/Applications/ShopArchive.app build/ipa/
+          mkdir build/ipa/Payload
+          mv build/ipa/ShopArchive.app build/ipa/Payload/
+          (cd build/ipa && zip -qry ../ShopArchive.ipa Payload)
+          python3 make-source.py "$GITHUB_REF_NAME" build/ShopArchive.ipa build/ipa/Payload/ShopArchive.app/Info.plist > build/source.json
+          cat build/source.json
+      - run: gh release create "$GITHUB_REF_NAME" build/ShopArchive.ipa build/source.json --draft --title "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

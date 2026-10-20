@@ -1,5 +1,5 @@
 #!/bin/sh
-# Renders the home-screen icon (ShopArchive/Assets.xcassets/AppIcon.appiconset) from ../composeApp/icons/shoparchive.svg, the art every platform shares:
+# Renders the home-screen icon (ShopArchive/Assets.xcassets/AppIcon.appiconset) from composeApp/icons/shoparchive.svg of the ShopArchive folder ($SHOPARCHIVE, default ../ShopArchive), the art every platform shares:
 # the receipt (not receipt and coin) centred and the art 72% of the width, as Android's adaptive icon. Needs rsvg-convert.
 #   AppIcon.png         on opaque white, RGB without alpha (iOS rejects an alpha channel here)
 #   AppIcon-Dark.png    on transparent (iOS adds the dark backdrop), the paper dark and the green the app's dark money green, so no white sheet glares
@@ -7,6 +7,7 @@
 set -eu
 cd "$(dirname "$0")"
 out=ShopArchive/Assets.xcassets/AppIcon.appiconset
+svg="${SHOPARCHIVE:-../ShopArchive}/composeApp/icons/shoparchive.svg"
 dir=$(mktemp -d)
 # art BACKGROUND SED-SCRIPT: writes $dir/icon.svg, the shared art through the sed script, on the background colour unless that is empty
 art() {
@@ -14,7 +15,7 @@ art() {
         echo '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">'
         [ -z "$1" ] || echo "<rect width=\"1024\" height=\"1024\" fill=\"$1\"/>"
         echo '<g fill="none" transform="translate(166.4 146.24) scale(1.44)">'
-        sed -e '/^<?xml/d' -e '/<svg/d' -e '/<\/svg>/d' -e "$2" ../composeApp/icons/shoparchive.svg
+        sed -e '/^<?xml/d' -e '/<svg/d' -e '/<\/svg>/d' -e "$2" "$svg"
         echo '</g></svg>'
     } > "$dir/icon.svg"
 }
