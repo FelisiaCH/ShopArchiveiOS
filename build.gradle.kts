@@ -179,8 +179,7 @@ abstract class CheckIosResources : IosResourcesTask() {
     fun check() {
         val stale = render().filter { (path, text) -> File(target.get().asFile, path).takeIf { it.isFile }?.readText() != text }.keys
         if (stale.isNotEmpty()) {
-            val p = stale.sorted().first(); val a = render().getValue(p); val b = File(target.get().asFile, p).readText(); val i = a.indices.firstOrNull { it >= b.length || a[it] != b[it] } ?: a.length
-            throw GradleException("DEBUG $p at $i of ${a.length}/${b.length}: [${a.drop(maxOf(0, i - 30)).take(60)}] vs [${b.drop(maxOf(0, i - 30)).take(60)}]\niOS resources are out of date: ${stale.sorted()}\nRun ./gradlew generateIosResources and commit the result.")
+            throw GradleException("iOS resources are out of date: ${stale.sorted()}\nRun ./gradlew generateIosResources and commit the result.")
         }
     }
 }
