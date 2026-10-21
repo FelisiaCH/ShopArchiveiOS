@@ -78,6 +78,7 @@ private let reasonKeys: [String: String] = {
         r.PIN_REPEATED: "reason_pin_repeated",
         r.PIN_SEQUENCE: "reason_pin_sequence",
         r.PIN_NOT_SET: "reason_pin_not_set",
+        r.SETUP_CODE: "reason_setup_code",
         r.PASSWORD_REQUIRED: "reason_password_required",
         r.PASSWORD_SHORT: "reason_password_short",
         r.PASSWORD_LONG: "reason_password_long",
