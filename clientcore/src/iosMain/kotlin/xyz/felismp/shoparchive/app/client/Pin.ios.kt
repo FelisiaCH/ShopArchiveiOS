@@ -111,7 +111,8 @@ fun ApiClient(serverId: String, pin: String, endpoints: List<String>, connectTim
     // so the last check is remembered, and a cancelled connection right after a refused key is that refusal.
     val refused = AtomicBoolean(false)
     val http = pinnedHttpClient(pin, connectTimeoutMs) { allowed -> refused.store(!allowed) }
-    return ApiClient(serverId, endpoints, http) { e -> isPinFailure(e) || (refused.load() && e.isCancelledTask()) }
+    // shortcut: no isConnectFailure (upstream default: every IOException tries the next address), until Darwin errors are sorted into "not connected" and "sent".
+    return ApiClient(serverId, endpoints, http, { e -> isPinFailure(e) || (refused.load() && e.isCancelledTask()) })
 }
 
 private fun Throwable.isCancelledTask(): Boolean =
