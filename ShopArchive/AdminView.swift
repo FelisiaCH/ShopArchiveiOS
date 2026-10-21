@@ -88,7 +88,15 @@ private struct StaffSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            if !ui.loaded {
+            // Shown once after an add or a reset; the owner gives it to the person, who types it with a new PIN.
+            if let pair = ui.setupCode, let name = pair.first as String?, let code = pair.second as String? {
+                Card {
+                    Text(text("manage_code_give", name)).font(.headline)
+                    Text(verbatim: code).font(.system(.largeTitle, design: .monospaced).bold())
+                    Button(text("manage_code_done")) { admin.dismissSetupCode() }
+                        .buttonStyle(.filledFull)
+                }
+            } else if !ui.loaded {
                 if !ui.loading {
                     Button(text("retry")) { admin.load() }
                         .buttonStyle(.filledFull)

@@ -263,6 +263,7 @@
 "reason_pin_length" = "The PIN must be only digits, and exactly the number of digits the server asks for.";
 "reason_pin_repeated" = "The PIN must not be one digit repeated, like 111111.";
 "reason_pin_not_set" = "This account has no PIN yet. Choose one.";
+"reason_setup_code" = "The setup code is missing or wrong. Ask the owner for a setup code.";
 "reason_pin_sequence" = "The PIN must not be a straight run of digits, like 123456.";
 "reason_password_required" = "Enter a password.";
 "reason_password_short" = "The password is too short.";
@@ -379,6 +380,9 @@
 "err_other_server" = "Another server answers at this address now. Check the address, or add it as a new server.";
 "login_title" = "Log in";
 "login_submit" = "Log in";
+"setup_code_label" = "Setup code (from the owner)";
+"manage_code_give" = "Give %1$@ this code. They type it once with their new PIN.";
+"manage_code_done" = "Done";
 "login_set_pin" = "This account has no PIN yet. Choose one for it.";
 "err_pin_digits" = "The PIN is 4 to 12 digits.";
 "err_pin_exact" = "The PIN is exactly %1$d digits.";
@@ -417,7 +421,7 @@
 "manage_add" = "Add";
 "manage_rename" = "Rename";
 "manage_staff_add" = "Add staff";
-"manage_staff_hint" = "The new person sets their own PIN the first time they log in.";
+"manage_staff_hint" = "The new person gets a setup code to type once with their own new PIN at their first login.";
 "manage_role" = "Role";
 "manage_role_none" = "No role";
 "manage_admin" = "Admin";
@@ -428,7 +432,7 @@
 "manage_unlock" = "Unlock";
 "manage_reset" = "Reset PIN";
 "manage_reset_ask" = "Reset the PIN of %1$@?";
-"manage_reset_body" = "%1$@ is signed out of every device and sets a new PIN at the next login.";
+"manage_reset_body" = "%1$@ is signed out of every device and gets a new setup code to set a new PIN at the next login.";
 "manage_reset_yes" = "Yes, reset";
 "manage_branch_add" = "Add branch";
 "manage_branch_name" = "Branch name";

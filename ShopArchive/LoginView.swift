@@ -8,6 +8,7 @@ struct LoginView: View {
     @State private var username = ""
     // Secrets live in plain @State, never saved anywhere.
     @State private var pin = ""
+    @State private var setupCode = ""
     @State private var newPin = ""
     @State private var newPinRepeat = ""
 
@@ -26,6 +27,8 @@ struct LoginView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     if state.needsNewPin {
+                        SecureField(text("setup_code_label"), text: $setupCode)
+                            .keyboardType(.numberPad)
                         // An old server does not say how many digits: then 4 to 12, and the server refuses a wrong length in words.
                         SecureField(text("pin_new", state.pinLength.map { String($0.intValue) } ?? "4–12"), text: $newPin)
                             .keyboardType(.numberPad)
@@ -47,7 +50,8 @@ struct LoginView: View {
                         flow.login(
                             username: username, pin: pin,
                             newPin: state.needsNewPin ? newPin : nil,
-                            newPinRepeat: state.needsNewPin ? newPinRepeat : nil
+                            newPinRepeat: state.needsNewPin ? newPinRepeat : nil,
+                            setupCode: state.needsNewPin ? setupCode : nil
                         )
                     }
                     if state.adding {
@@ -60,6 +64,7 @@ struct LoginView: View {
             .navigationTitle(text(state.adding ? "add_user_title" : "login_title"))
             // What was typed as the new PIN is not the next one when the server asks for it differently.
             .onChange(of: state.needsNewPin) { _ in
+                setupCode = ""
                 newPin = ""
                 newPinRepeat = ""
             }
