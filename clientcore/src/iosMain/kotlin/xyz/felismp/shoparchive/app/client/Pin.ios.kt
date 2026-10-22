@@ -22,6 +22,12 @@ import platform.Foundation.NSData
 import platform.Foundation.NSURLAuthenticationMethodServerTrust
 import platform.Foundation.NSURLCredential
 import platform.Foundation.NSURLErrorCancelled
+import platform.Foundation.NSURLErrorCannotConnectToHost
+import platform.Foundation.NSURLErrorCannotFindHost
+import platform.Foundation.NSURLErrorDNSLookupFailed
+import platform.Foundation.NSURLErrorNotConnectedToInternet
+import platform.Foundation.NSURLErrorSecureConnectionFailed
+import platform.Foundation.NSURLErrorTimedOut
 import platform.Foundation.NSURLSessionAuthChallengeCancelAuthenticationChallenge
 import platform.Foundation.NSURLSessionAuthChallengeUseCredential
 import platform.Foundation.credentialForTrust
@@ -111,8 +117,21 @@ fun ApiClient(serverId: String, pin: String, endpoints: List<String>, connectTim
     // so the last check is remembered, and a cancelled connection right after a refused key is that refusal.
     val refused = AtomicBoolean(false)
     val http = pinnedHttpClient(pin, connectTimeoutMs) { allowed -> refused.store(!allowed) }
-    // shortcut: no isConnectFailure (upstream default: every IOException tries the next address), until Darwin errors are sorted into "not connected" and "sent".
-    return ApiClient(serverId, endpoints, http, { e -> isPinFailure(e) || (refused.load() && e.isCancelledTask()) })
+    return ApiClient(serverId, endpoints, http, { e -> isPinFailure(e) || (refused.load() && e.isCancelledTask()) }, ::isConnectFailure)
+}
+
+/** NSURL errors that come before the request is sent, so trying the next address cannot run it twice. */
+private val NOT_SENT = setOf(
+    NSURLErrorCannotFindHost, NSURLErrorCannotConnectToHost, NSURLErrorDNSLookupFailed, NSURLErrorNotConnectedToInternet, NSURLErrorSecureConnectionFailed,
+    // shortcut: NSURLSession has no connect timeout of its own, so a timeout may come after the request was sent; it still tries the next address,
+    // which a phone off the shop's Wi-Fi needs to reach the server's other address, until the connect phase is timed on its own.
+    NSURLErrorTimedOut,
+)
+
+/** The JVM's isConnectFailure for Darwin: whether the connection was not made. An IOException that is not a Darwin error tries the next address, as before. */
+internal fun isConnectFailure(e: Throwable): Boolean {
+    val darwin = generateSequence(e) { it.cause }.take(10).filterIsInstance<DarwinHttpRequestException>().firstOrNull() ?: return true
+    return darwin.origin.code in NOT_SENT
 }
 
 private fun Throwable.isCancelledTask(): Boolean =
