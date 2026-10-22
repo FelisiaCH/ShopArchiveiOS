@@ -27,6 +27,7 @@ fun createIosAppFlow(): AppFlow {
         compressor = createSlipCompressor(),
         reader = createIosSlipReader(),
         discovery = createServerDiscovery(),
+        outbox = createOutboxStore(),
     )
     setAmountLanguage(flow.language.value)
     scope.launch { flow.language.collect { setAmountLanguage(it) } }
