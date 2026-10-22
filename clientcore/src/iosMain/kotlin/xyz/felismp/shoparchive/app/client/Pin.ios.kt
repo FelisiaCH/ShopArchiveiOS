@@ -46,7 +46,7 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
  * trusted, only the key is. Here it is decided in the Darwin engine's challenge handler, which sees the chain the server sent (nothing is evaluated).
  */
 
-private fun sha256(input: ByteArray): ByteArray {
+internal fun sha256(input: ByteArray): ByteArray {
     val digest = UByteArray(CC_SHA256_DIGEST_LENGTH)
     input.usePinned { inputPinned ->
         digest.usePinned { digestPinned ->
