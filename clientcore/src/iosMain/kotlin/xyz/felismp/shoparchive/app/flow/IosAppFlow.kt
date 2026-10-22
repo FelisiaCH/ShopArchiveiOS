@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import platform.UIKit.UIDevice
 import xyz.felismp.shoparchive.app.client.ApiClient
 import xyz.felismp.shoparchive.app.client.createCredentialStore
+import xyz.felismp.shoparchive.app.client.createOutboxStore
 import xyz.felismp.shoparchive.app.client.createPreferencesStore
 import xyz.felismp.shoparchive.app.client.createServerDiscovery
 import xyz.felismp.shoparchive.app.client.probeFingerprint
